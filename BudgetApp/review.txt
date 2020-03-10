@@ -1,0 +1,23 @@
+1) Ваня Бахтин, [02.03.20 20:46]
+var sum = 0;
+data.allItems[type].forEach(function(el){
+  sum += el.value;
+});
+моднее:
+const sum = data.allItems[type].reduce((a,b) => a + b, 0)
+2) надо приучаться использовать let и const. var это не модно.
+3) data.allItems[type][data.allItems[type].length - 1]
+некрасиво. красивее
+const items = data.allItems[type]
+items[items.length - 1]
+4) зачем nodeListForEach если можно просто forEach сделать?
+да пёс его знает, может ты права, и у этого нодлиста действительно нет forEach
+5) я придумал тебе забавный бажец.
+добавь какую-нибудь трату description которой будет %value%
+ты ж знаешь регулярные выражения, верно?
+в общем идея была в том, что с ними можно надёжнее делать такие замены
+6) чё у тебя все месяцы как сокращения, а март и апрель полностью написаны?
+7) var input, newItem, budget;  должны быть объявлены в ctrlAddItem а не в самом контроллере
+8) event.target.parentNode.parentNode.parentNode.parentNode.id это очень ужасно конечно, 
+но лучше вряд ли есть способ сделать без доп библиотек
+9) при удалении дохода проценты в списке трат не обновляются
