@@ -1,36 +1,17 @@
-/*
-GAME RULES:
-
-- The game has 2 players, playing in rounds
-- In each turn, a player rolls a dice as many times as he whishes. Each result get added to his ROUND score
-- BUT, if the player rolls a 1, all his ROUND score gets lost. After that, it's the next player's turn
-- The player can choose to 'Hold', which means that his ROUND score gets added to his GLBAL score. After that, it's the next player's turn
-- The first player to reach 100 points on GLOBAL score wins the game
-
-*/
-
-//will be italic
-//document.querySelector('#current-' + activePlayer).innerHTML = '<em>' + dice + '</em>';
-
-
-//Use call-back function mechaninsm
-//function btn(){}
-//btn();
-//document.querySelector('.btn-roll').addEventListener('click', btn);
-//or use ananymous function if you don't need it any more
-
-
 /**************** INITIALIZATIONS **********************/
 
 var scores, roundScore, activePlayer, dice, diceExt, gamePlaying; 
 
-var diceDOM = document.querySelector('#dice-0');
-var diceDOMExt = document.querySelector('#dice-1');
+const diceDOM = document.querySelector('#dice-0');
+const diceDOMExt = document.querySelector('#dice-1');
 
 initialize();
 
 /********************* ACTIONS *****************************/
 document.querySelector('.btn-roll').addEventListener('click', function(){
+    const previousDice = dice;
+    const previousDiceExt = diceExt;
+
     if (gamePlaying){     
         
         disableWinnerScore();
@@ -38,9 +19,7 @@ document.querySelector('.btn-roll').addEventListener('click', function(){
         dice = Math.floor(Math.random()*6) + 1;
         diceExt = Math.floor(Math.random()*6) + 1;
         
-        var total = dice + diceExt;
-        console.log('dice = ' + dice);
-        console.log('diceExt = ' + diceExt);
+        const total = dice + diceExt;
     
         //2.Display the result
         diceDOM.style.display = 'block';
@@ -49,7 +28,7 @@ document.querySelector('.btn-roll').addEventListener('click', function(){
         diceDOMExt.src = 'dice-' +  diceExt + '.png';
     
         //3. update the round score IF the rolled number is not 1
-        if (dice !== 1 && diceExt !== 1 && (!checkSecondCondition(dice, previousDice))){
+        if (dice !== 1 && diceExt !== 1 && (!checkIfSixAppearedTwice(dice, diceExt, previousDice, previousDiceExt))){
             roundScore += total;
             document.querySelector('#current-' + activePlayer).textContent = roundScore;
         }
@@ -57,8 +36,6 @@ document.querySelector('.btn-roll').addEventListener('click', function(){
             loseScores(activePlayer);
             nextPlayer();
         }   
-    
-    var previousDice = dice;
     }
 });
 
@@ -70,10 +47,7 @@ document.querySelector('.btn-hold').addEventListener('click', function(){
         //update UI
         document.querySelector('#score-' + activePlayer).textContent = scores[activePlayer];
         
-        //var input = document.getElementsByTagName("input")[0].value;
-        
         var input = document.querySelector('.final-score').value;
-        console.log('input = ' + input);
         
         //if input = 0, play till 100
         if (input == "" || input == 0){
@@ -98,9 +72,7 @@ document.querySelector('.btn-hold').addEventListener('click', function(){
     }
 });
 
-document.querySelector('.btn-new').addEventListener('click', function(){
-    initialize();
-});
+document.querySelector('.btn-new').addEventListener('click', initialize());
 
 
 /******************* FUNCTIONS ****************************/
@@ -108,35 +80,28 @@ document.querySelector('.btn-new').addEventListener('click', function(){
 function loseScores(activePlayer){
     scores[activePlayer] = 0;
     document.querySelector('#current-' + activePlayer).textContent = 0;
-    document.querySelector('#score-' + activePlayer).textContent = 0;
 }
 
 function disableWinnerScore(){
-    //document.getElementById('winner-score').disabled = true;
     document.querySelector('.final-score').disabled = true;
 }
 
-function checkSecondCondition(dice, previousDice){
-    var flag = false;
-    if (dice == 6 && dice == previousDice){
-        return true;
-    }
-
-    return flag;
+function checkIfSixAppearedTwice(dice, diceExt, previousDice, previousDiceExt){
+    return ([dice, diceExt].includes(6) && [previousDice, previousDiceExt].includes(6));
 }
 
 function nextPlayer(){
-        activePlayer == 0 ? activePlayer = 1 : activePlayer = 0;
-        roundScore = 0;
-        
-        document.getElementById('current-0').textContent = '0';
-        document.getElementById('current-1').textContent = '0';
-        
-        document.querySelector('.player-0-panel').classList.toggle('active');
-        document.querySelector('.player-1-panel').classList.toggle('active');
-        
-        diceDOM.style.display = 'none';
-        diceDOMExt.style.display = 'none';
+    activePlayer = activePlayer === 0 ? 1 : 0;
+    roundScore = 0;
+    
+    document.getElementById('current-0').textContent = '0';
+    document.getElementById('current-1').textContent = '0';
+    
+    document.querySelector('.player-0-panel').classList.toggle('active');
+    document.querySelector('.player-1-panel').classList.toggle('active');
+    
+    diceDOM.style.display = 'none';
+    diceDOMExt.style.display = 'none';
 }
 
 function initialize(){
@@ -148,7 +113,6 @@ function initialize(){
     //hide dice picture by default
     diceDOM.style.display = 'none';
     diceDOMExt.style.display = 'none';
-    //faster than querySelector
     document.getElementById('score-0').textContent = '0';
     document.getElementById('score-1').textContent = '0';
     document.getElementById('current-0').textContent = '0';
