@@ -1,6 +1,6 @@
 /**************** INITIALIZATIONS **********************/
 
-var scores, roundScore, activePlayer, dice, diceExt, gamePlaying; 
+let scores, roundScore, activePlayer, dice, diceExt, gamePlaying; 
 
 const diceDOM = document.querySelector('#dice-0');
 const diceDOMExt = document.querySelector('#dice-1');
@@ -47,7 +47,7 @@ document.querySelector('.btn-hold').addEventListener('click', function(){
         //update UI
         document.querySelector('#score-' + activePlayer).textContent = scores[activePlayer];
         
-        var input = document.querySelector('.final-score').value;
+        let input = document.querySelector('.final-score').value;
         
         //if input = 0, play till 100
         if (input == "" || input == 0){
@@ -72,7 +72,7 @@ document.querySelector('.btn-hold').addEventListener('click', function(){
     }
 });
 
-document.querySelector('.btn-new').addEventListener('click', initialize());
+document.querySelector('.btn-new').addEventListener('click', initialize);
 
 
 /******************* FUNCTIONS ****************************/
