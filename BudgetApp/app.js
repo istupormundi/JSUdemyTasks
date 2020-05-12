@@ -1,23 +1,7 @@
-/*//NOTE:Using IIFE our code is private and does not affect another code
-var budgetController = (function(){
-    var a = 20;
-    
-    var add = function(inp){
-        return a + inp;
-    }
-    
-    //NOTE: to make smth public in IIFE, return function which returns needed parameter
-    return {
-        publicTest: function(b){
-            return add(b);
-        }
-    }
-})();*/
-
 // BUDGET CONTROLLER
-var budgetController = (function () {
+const budgetController = (function () {
 	
-	var data = {
+	const data = {
 		allItems: {
 			exp: [],
 			inc: [],
@@ -30,7 +14,7 @@ var budgetController = (function () {
 		precentage: -1
 	};
 
-	var Expense = function (id, description, value) {
+	const Expense = function (id, description, value) {
 		this.id = id;
 		this.description = description;
 		this.value = value,
@@ -42,35 +26,37 @@ var budgetController = (function () {
 			this.percentage = Math.round((this.value / totalIncome) * 100);
 		}
 		else{
-			this.percentage = -1;
+			this.percentage = 'NA';
 		}
 	}
+
 	Expense.prototype.getPrecentage = function(){
 		return this.percentage;
 	}
 
-	var Income = function (id, description, value) {
+	const Income = function (id, description, value) {
 		this.id = id;
 		this.description = description;
 		this.value = value
 	}
 	
-	var calculateTotal = function (type){
-		var sum = 0;
-		data.allItems[type].forEach(function(el){
-			sum += el.value;
-		});
-		data.totals[type] = sum;
+	const calculateTotal = function (type){
+		const res = data.allItems[type].reduce((temp, el) => {
+			return temp + el.value;
+		}, 0);
+		
+		data.totals[type] = res;
 	}
 
 	return {
 		addItem: function (type, descr, val) {
-			var newItem, id;
+			let newItem, id;
 
 			//creates new id
 			//new id = id of the last existing income\expence in Data + 1
 			if (data.allItems[type].length > 0) {
-				id = data.allItems[type][data.allItems[type].length - 1].id + 1;
+				const items = data.allItems[type];
+				id = items[items.length - 1].id + 1;
 			} else {
 				id = 0;
 			}
@@ -91,7 +77,7 @@ var budgetController = (function () {
 		},
 		
 		deleteItem: function (type, id){
-			var ids, index;
+			let ids, index;
 			
 			/* we can't do simply this - data.allItems[type][id]
 			e.g. we want to delete id = 3 and we have id: [1 2 4 6 8]
@@ -151,7 +137,7 @@ var budgetController = (function () {
 		
 		getPrecentages: function(){
 			//map because it returns
-			var allPrec = data.allItems.exp.map(function(el){
+			const allPrec = data.allItems.exp.map(function(el){
 				return el.getPrecentage();
 			});
 			
@@ -166,9 +152,9 @@ var budgetController = (function () {
 
 
 // UI CONTROLLER
-var UIController = (function () {
+const UIController = (function () {
 
-	var DOMStrings = {
+	const DOMStrings = {
 		inputType: '.add__type',
 		inputDescription: '.add__description',
 		inputValue: '.add__value',
@@ -184,12 +170,12 @@ var UIController = (function () {
 		dateLabel: '.budget__title--month'
 	};
 	
-	var formatNumber = function(num, type){
+	const formatNumber = function(num, type){
 		//+ or - before the number
-		//the same decimal part for all (2 numberes after point)
+		//the same decimal part for all (2 numbers after point)
 		//comma separating for >= 1k
 			
-		var numSplit, int, dec, sign;
+		let numSplit, int, dec, sign;
 			
 		num = Math.abs(num);
 		num = num.toFixed(2);
@@ -211,8 +197,8 @@ var UIController = (function () {
 		return sign + ' ' + int + '.' + dec;
 	};
 	
-	var nodeListForEach = function(list, callback){
-		for (var i = 0; i < list.length; i++){
+	const nodeListForEach = function(list, callback){
+		for (let i = 0; i < list.length; i++){
 			callback(list[i], i);
 		}
 	};
@@ -225,19 +211,19 @@ var UIController = (function () {
 		getInput: function () {
 			return {
 				type: document.querySelector(DOMStrings.inputType).value, // will be inc or exp
-				description: document.querySelector(DOMStrings.inputDescription).value,
+				description: document.querySelector(DOMStrings.inputDescription).value.replace(/%/g, ''),
 				value: parseFloat(document.querySelector(DOMStrings.inputValue).value)
 			}
 		},
 
 		//obj = newItem in controller
 		addListItem: function (obj, type) {
-			var html, newHtml, element;
+			let html, newHtml, element;
 
 			//create new HTML string with placeholder text
 			if (type == 'inc') {
 				element = DOMStrings.incomeContainer;
-				html = '<div class="item clearfix" id="inc-%id%"> <div class="item__description">%description%</div> <div class="right clearfix"> <div class="item__value">%value%</div> <div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i> </button> </div> </div> </div>';
+				html = '<div class="item clearfix" id="inc-%id%"><div class="item__description">%description%</div> <div class="right clearfix"> <div class="item__value">%value%</div> <div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i> </button> </div> </div> </div>';
 			} else if (type == 'exp') {
 				element = DOMStrings.expencesContainer;
 				html = '<div class="item clearfix" id="exp-%id%"> <div class="item__description">%description%</div> <div class="right clearfix"> <div class="item__value">%value%</div> <div class="item__percentage">%percentage%</div> <div class="item__delete"> <button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button> </div> </div> </div>';
@@ -254,13 +240,13 @@ var UIController = (function () {
 		},
 		
 		deleteListItem: function(selectorID){
-			var element = document.getElementById(selectorID);
+			const element = document.getElementById(selectorID);
 			//in java we always delete a child
 			element.parentNode.removeChild(element);
 		},
 
 		clearFields: function () {
-			var fields, fieldsArray;
+			let fields, fieldsArray;
 
 			fields = document.querySelectorAll(DOMStrings.inputDescription + ', ' + DOMStrings.inputValue);
 			
@@ -312,7 +298,7 @@ var UIController = (function () {
 		},
 		
 		displayBudget: function(obj){
-			var type;
+			let type;
 			obj.budget > 0 ? type = 'inc' : type = 'exp';
 			
 			document.querySelector(DOMStrings.budgetLabel).textContent = formatNumber(obj.budget, type);
@@ -323,35 +309,31 @@ var UIController = (function () {
 				document.querySelector(DOMStrings.percentageLabel).textContent = obj.percentage + '%';
 			}
 			else {
-				document.querySelector(DOMStrings.percentageLabel).textContent = '--';
+				document.querySelector(DOMStrings.percentageLabel).textContent = 'NA';
 			}
 		},
 		
 		displayPercentage: function(percenteges){
 			
-		var nodes = document.querySelectorAll(DOMStrings.expensesPercLabel);
+			let nodes = document.querySelectorAll(DOMStrings.expensesPercLabel);
 			
-//!!!!!!!!!!!!!!!!! ONE MORE TRICK !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		
-		//see var nodeListForEach	
-			
-		nodeListForEach(nodes, function(el, index){
-				
-				if (percenteges[index] > 0){
+			//!!!!!!!!!!!!!!!!! ONE MORE TRICK !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	
+			nodeListForEach(nodes, function(el, index){
+				el.textContent = percenteges[index] + '%';
+				/*if (percenteges[index] > 0){
 					el.textContent = percenteges[index] + '%';
 				}
 				else{
 					el.textContent = '---';
-				}
+				}*/
 			});
 		},
 		
 		displayMonth: function(){
-			var now, year, month, months;
+			let now, year, month, months;
 			
-			months = ['Jan', 'Feb', 'March', 'April', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+			months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
+			 'November', 'December'];
 			now = new Date();
 			year = now.getFullYear();
 			month = now.getMonth();
@@ -361,7 +343,7 @@ var UIController = (function () {
 		
 		changeType: function(){
 	    	
-			var fields = document.querySelectorAll(
+			const fields = document.querySelectorAll(
 				DOMStrings.inputType + ',' +
 				DOMStrings.inputDescription + ',' +
 				DOMStrings.inputValue);
@@ -375,12 +357,10 @@ var UIController = (function () {
 
 
 //GLOBAL APP CONTROLLER
-var controller = (function (budgetCtrl, UICtrl) {
+const controller = (function (budgetCtrl, UICtrl) {
 
-	var input, newItem, budget; 
-
-	var setupEventListener = function () {
-		var DOM = UICtrl.getDOMStrings();
+	const setupEventListener = function () {
+		const DOM = UICtrl.getDOMStrings();
 		//ctrlAddItem here is a callback
 		document.querySelector(DOM.inputButton).addEventListener('click', ctrlAddItem);
 
@@ -398,7 +378,8 @@ var controller = (function (budgetCtrl, UICtrl) {
 	}
 
 	//placed here cause access outside is not needed
-	var ctrlAddItem = function() {
+	const ctrlAddItem = function() {
+		let input, newItem, budget; 
 	
 		// 1. get input data
 		input = UICtrl.getInput();
@@ -423,8 +404,8 @@ var controller = (function (budgetCtrl, UICtrl) {
 	}
 	
 	//event is needed here to know what is target 
-	var ctrlDeleteItem = function(event){
-		var itemId, splitId, type, id;
+	const ctrlDeleteItem = function(event){
+		let itemId, splitId, type, id;
 		
 		itemId = event.target.parentNode.parentNode.parentNode.parentNode.id;
 		
@@ -435,17 +416,18 @@ var controller = (function (budgetCtrl, UICtrl) {
 			id = parseInt(splitId[1]);
 			
 			// 1. delete the item from the data structure
-			
 			budgetCtrl.deleteItem(type, id);
 			
 			// 2. delete it from UI
 			UICtrl.deleteListItem(itemId);
 			// 3. update and show new budget
 			updateBudget();
+			// 4. update percentages
+			updadePercentages();
 		}
 	}
 	
-	var updateBudget = function(){
+	const updateBudget = function(){
 		
 		// 1. calculate budged 
 		budgetCtrl.calculateBudget();
@@ -457,11 +439,11 @@ var controller = (function (budgetCtrl, UICtrl) {
 		UICtrl.displayBudget(budget);
 	}
 	
-	var updadePercentages = function(){
+	const updadePercentages = function(){
 		//cacl perc
 		budgetCtrl.caclulatePercentages();
 		//read from budget controller
-		var percentages = budgetCtrl.getPrecentages();
+		const percentages = budgetCtrl.getPrecentages();
 		//udp UI 
 		UICtrl.displayPercentage(percentages);
 	}
